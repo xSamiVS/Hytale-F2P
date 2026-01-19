@@ -4,7 +4,7 @@
 
 **Download server file:**
 ```
-http://3.10.208.30:3002/server
+https://files.hytalef2p.com/server
 ```
 
 **Replace the file here:**  
