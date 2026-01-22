@@ -1,0 +1,54 @@
+name: Support Request
+description: Request help or support
+title: "[SUPPORT] "
+labels: ["support"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: What do you need help with?
+      description: Describe your question or issue clearly.
+      placeholder: "I'm having trouble with..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Provide any relevant context or background information.
+      placeholder: "I've tried..., I expected..., but got..."
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: What version are you using?
+      placeholder: "e.g. v1.2.3"
+
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      description: What platform are you using?
+      options:
+        - Windows
+        - macOS
+        - Linux
+        - iOS
+        - Android
+        - Web Browser
+        - Other
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or Error Messages
+      description: If applicable, paste any error messages or logs here.
+      render: shell
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Information
+      description: Any other information that might help us assist you.

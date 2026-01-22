@@ -1,0 +1,42 @@
+name: Translation Request
+description: Request translation for text or content
+title: "[TRANSLATION] "
+labels: ["translation"]
+body:
+  - type: input
+    id: language
+    attributes:
+      label: Target Language
+      description: What language do you want to translate to?
+      placeholder: "e.g. Spanish (es-ES), French (fr-FR)"
+    validations:
+      required: true
+
+  - type: textarea
+    id: source_text
+    attributes:
+      label: Source Text
+      description: The original text that needs to be translated.
+      placeholder: "Paste the text here..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Provide context about where this text appears or how it's used.
+      placeholder: "This text appears in..., It's used for..."
+
+  - type: input
+    id: file_location
+    attributes:
+      label: File Location
+      description: Where is this text located in the codebase?
+      placeholder: "e.g. src/components/Button.js:15"
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Notes
+      description: Any specific instructions or notes for the translator.

@@ -1,0 +1,54 @@
+name: Asset Contribution
+description: Contribute assets (images, sounds, models, etc.)
+title: "[ASSETS] "
+labels: ["assets"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Asset Description
+      description: Describe the asset(s) you're contributing.
+      placeholder: "What type of asset is this? What does it represent?"
+    validations:
+      required: true
+
+  - type: input
+    id: format
+    attributes:
+      label: File Format
+      description: What format are the asset files in?
+      placeholder: "e.g. PNG, JPG, MP3, OBJ"
+
+  - type: input
+    id: license
+    attributes:
+      label: License
+      description: What license applies to this asset?
+      placeholder: "e.g. CC0, MIT, Public Domain"
+
+  - type: textarea
+    id: usage
+    attributes:
+      label: Intended Usage
+      description: Where and how should this asset be used in the project?
+      placeholder: "This asset should be used for..., in the following context..."
+
+  - type: textarea
+    id: source
+    attributes:
+      label: Source/Attribution
+      description: If this asset is derived from another source, provide attribution.
+      placeholder: "Created by me, or derived from [source]"
+
+  - type: input
+    id: link
+    attributes:
+      label: Download Link
+      description: Provide a link to download or view the asset.
+      placeholder: "GitHub release, Google Drive, etc."
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Information
+      description: Any other information about the asset.
