@@ -13,6 +13,11 @@ const { resolveJavaPath, detectSystemJava, downloadJRE, getJavaExec, getBundledJ
 async function downloadPWR(version = 'release', fileName = '4.pwr', progressCallback, cacheDir = CACHE_DIR) {
   const osName = getOS();
   const arch = getArch();
+
+  if (osName === 'darwin' && arch === 'amd64') {
+    throw new Error('Hytale x86_64 Intel Mac Support has not been released yet. Please check back later.');
+  }
+
   const url = `https://game-patches.hytale.com/patches/${osName}/${arch}/${version}/0/${fileName}`;
 
   const dest = path.join(cacheDir, fileName);
