@@ -89,8 +89,23 @@ Creates a virtual LAN - all players need to install it:
 3. **Host via Online Play** - Use your Radmin VPN IP instead
 4. **Friends connect** - They'll see you on the virtual LAN
 
-Both options bypass all NAT/CGNAT issues.
+Both options bypass all NAT/CGNAT issues. But for **Windows machines only!**
 
+#### Option 3: Tailscale
+It creates mesh VPN service that streamlines connecting devices and services securely across different networks. And **works crossplatform!!**
+
+1. All member's are required to download [Tailscale](https://tailscale.com/download) on your device.
+[Once installed, Tailwind starts and live inside your hidden icon section in Windows, Mac and Linux]
+2. Create a **common tailscale** account which will shared among your friends to log in.
+3. Ask your **host to login in to thier tailscale client first**, then the other members.
+##### Host
+  1. Open your singleplayer world
+  2. Go to Online Play settings
+  3. Re-save your settings to generate a new share code
+##### Friends
+  1. Ensure Tailscale is connected
+2. Use the new share code to connect
+[To test your connection, ping the host's ipv4 mentioned in tailwind]
 ---
 
 ## Part 2: Dedicated Server (Advanced)
