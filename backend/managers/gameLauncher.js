@@ -331,6 +331,7 @@ exec "$REAL_JAVA" "\${ARGS[@]}"
       }
     });
 
+    // Monitor game process status in background
     setTimeout(() => {
       if (!hasExited) {
         console.log('Game appears to be running successfully');
@@ -343,6 +344,7 @@ exec "$REAL_JAVA" "\${ARGS[@]}"
       }
     }, 3000);
 
+    // Return immediately, don't wait for setTimeout
     return { success: true, installed: true, launched: true, pid: child.pid };
   } catch (spawnError) {
     console.error(`Error spawning game process: ${spawnError.message}`);
@@ -404,13 +406,22 @@ async function launchGameWithVersionCheck(playerName = 'Player', progressCallbac
       progressCallback('Launching game...', 80, null, null, null);
     }
 
-    return await launchGame(playerName, progressCallback, javaPathOverride, installPathOverride, gpuPreference, branch);
+    const launchResult = await launchGame(playerName, progressCallback, javaPathOverride, installPathOverride, gpuPreference, branch);
+    
+    // Ensure we always return a result
+    if (!launchResult) {
+      console.error('launchGame returned null/undefined, creating fallback response');
+      return { success: false, error: 'Game launch failed - no response from launcher' };
+    }
+    
+    return launchResult;
   } catch (error) {
     console.error('Error in version check and launch:', error);
     if (progressCallback) {
       progressCallback(`Error: ${error.message}`, -1, null, null, null);
     }
-    throw error;
+    // Always return an error response instead of throwing
+    return { success: false, error: error.message || 'Unknown launch error' };
   }
 }
 

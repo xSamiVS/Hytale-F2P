@@ -58,11 +58,11 @@ async function downloadFile(url, dest, progressCallback, maxRetries = 5) {
       console.log(`Download attempt ${attempt + 1}/${maxRetries} for ${url}`);
 
       if (attempt > 0 && progressCallback) {
-        // Exponential backoff with jitter
-        const baseDelay = 2000;
+        // Exponential backoff with jitter - longer delays for unstable connections
+        const baseDelay = 3000;
         const exponentialDelay = baseDelay * Math.pow(2, attempt - 1);
-        const jitter = Math.random() * 1000;
-        const delay = Math.min(exponentialDelay + jitter, 30000);
+        const jitter = Math.random() * 2000;
+        const delay = Math.min(exponentialDelay + jitter, 60000);
         
         progressCallback(`Retry ${attempt}/${maxRetries - 1}...`, null, null, null, null, retryState);
         await new Promise(resolve => setTimeout(resolve, delay));
@@ -78,9 +78,9 @@ async function downloadFile(url, dest, progressCallback, maxRetries = 5) {
         const now = Date.now();
         const timeSinceLastProgress = now - lastProgressTime;
         
-        // Only timeout if no data received for 5 minutes (300 seconds)
-        if (timeSinceLastProgress > 300000 && hasReceivedData) {
-          console.log('Download stalled for 5 minutes, aborting...');
+        // Only timeout if no data received for 10 minutes (600 seconds) - for very slow connections
+        if (timeSinceLastProgress > 600000 && hasReceivedData) {
+          console.log('Download stalled for 10 minutes, aborting...');
           console.log(`Download had progress before stall: ${(downloaded / 1024 / 1024).toFixed(2)} MB`);
           controller.abort();
         }
@@ -119,7 +119,7 @@ async function downloadFile(url, dest, progressCallback, maxRetries = 5) {
         method: 'GET',
         url: url,
         responseType: 'stream',
-        timeout: 60000,
+        timeout: 120000, // 120 seconds for slow connections
         signal: controller.signal,
         headers: headers,
         validateStatus: function (status) {
@@ -403,8 +403,9 @@ async function downloadFile(url, dest, progressCallback, maxRetries = 5) {
     const retryableErrors = [
       'ECONNRESET', 'ENOTFOUND', 'ECONNREFUSED', 'ETIMEDOUT', 
       'ESOCKETTIMEDOUT', 'EPROTO', 'ENETDOWN', 'EHOSTUNREACH',
+      'ECONNABORTED', 'EPIPE', 'ENETRESET', 'EADDRNOTAVAIL',
       'ERR_NETWORK', 'ERR_INTERNET_DISCONNECTED', 'ERR_CONNECTION_RESET',
-      'ERR_CONNECTION_TIMED_OUT', 'ERR_NAME_NOT_RESOLVED'
+      'ERR_CONNECTION_TIMED_OUT', 'ERR_NAME_NOT_RESOLVED', 'ERR_CONNECTION_CLOSED'
     ];
     
     const isRetryable = retryableErrors.includes(error.code) ||

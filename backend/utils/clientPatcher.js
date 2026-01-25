@@ -525,17 +525,16 @@ class ClientPatcher {
   }
 
   /**
-   * Patch the server JAR using DualAuthPatcher for full dual auth support
-   * This uses the same patcher as the Docker server for consistency
+   * Patch the server JAR by downloading pre-patched version
    * @param {string} serverPath - Path to the HytaleServer.jar
    * @param {function} progressCallback - Optional callback for progress updates
-   * @param {string} javaPath - Path to Java executable
+   * @param {string} javaPath - Path to Java executable (unused, kept for compatibility)
    * @returns {object} Result object with success status and details
    */
   async patchServer(serverPath, progressCallback, javaPath = null) {
     const newDomain = this.getNewDomain();
 
-    console.log('=== Server Patcher v3.0 (DualAuth) ===');
+    console.log('=== Server Patcher TEMP SYSTEM NEED TO BE FIXED ===');
     console.log(`Target: ${serverPath}`);
     console.log(`Domain: ${newDomain}`);
 
@@ -545,13 +544,13 @@ class ClientPatcher {
       return { success: false, error };
     }
 
-    // Check if already patched with DualAuth
+    // Check if already patched
     const patchFlagFile = serverPath + '.dualauth_patched';
     if (fs.existsSync(patchFlagFile)) {
       try {
         const flagData = JSON.parse(fs.readFileSync(patchFlagFile, 'utf8'));
         if (flagData.domain === newDomain) {
-          console.log(`Server already patched with DualAuth for ${newDomain}, skipping`);
+          console.log(`Server already patched for ${newDomain}, skipping`);
           if (progressCallback) progressCallback('Server already patched', 100);
           return { success: true, alreadyPatched: true };
         }
@@ -560,80 +559,99 @@ class ClientPatcher {
       }
     }
 
-    if (progressCallback) progressCallback('Preparing DualAuth patcher...', 10);
-
-    // Find Java executable - use bundled JRE first (same as game uses)
-    const java = javaPath || this.findJava();
-    if (!java) {
-      const error = 'Java not found. Please install the game first (it includes Java) or install Java 25 from: https://adoptium.net/';
-      console.error(error);
-      return { success: false, error };
-    }
-    console.log(`Using Java: ${java}`);
-
-    // Setup patcher directory
-    const patcherDir = path.join(__dirname, '..', 'patcher');
-    const patcherJava = path.join(patcherDir, 'DualAuthPatcher.java');
-    const libDir = path.join(patcherDir, 'lib');
-
-    // Download patcher from hytale-auth-server if not present
-    if (progressCallback) progressCallback('Checking patcher...', 15);
-    try {
-      await this.ensurePatcherDownloaded(patcherDir);
-    } catch (e) {
-      const error = `Failed to download DualAuthPatcher: ${e.message}`;
-      console.error(error);
-      return { success: false, error };
-    }
-
-    if (!fs.existsSync(patcherJava)) {
-      const error = `DualAuthPatcher.java not found at ${patcherJava}`;
-      console.error(error);
-      return { success: false, error };
-    }
-
-    // Download ASM libraries if not present
-    if (progressCallback) progressCallback('Checking ASM libraries...', 20);
-    await this.ensureAsmLibraries(libDir);
-
-    // Compile patcher if needed
-    if (progressCallback) progressCallback('Compiling patcher...', 30);
-    const compileResult = await this.compileDualAuthPatcher(java, patcherDir, libDir);
-    if (!compileResult.success) {
-      return { success: false, error: compileResult.error };
-    }
-
     // Create backup
-    if (progressCallback) progressCallback('Creating backup...', 40);
+    if (progressCallback) progressCallback('Creating backup...', 10);
     console.log('Creating backup...');
     this.backupClient(serverPath);
 
-    // Run the patcher
-    if (progressCallback) progressCallback('Patching server JAR...', 50);
-    console.log('Running DualAuthPatcher...');
+    // Download pre-patched JAR
+    if (progressCallback) progressCallback('Downloading patched server JAR...', 30);
+    console.log('Downloading pre-patched HytaleServer.jar from https://files.hytalef2p.com/jar');
 
-    const classpath = [
-      patcherDir,
-      path.join(libDir, 'asm-9.6.jar'),
-      path.join(libDir, 'asm-tree-9.6.jar'),
-      path.join(libDir, 'asm-util-9.6.jar')
-    ].join(process.platform === 'win32' ? ';' : ':');
+    try {
+      const https = require('https');
+      const url = 'https://files.hytalef2p.com/jar';
 
-    const patchResult = await this.runDualAuthPatcher(java, classpath, serverPath, newDomain);
+      await new Promise((resolve, reject) => {
+        https.get(url, (response) => {
+          if (response.statusCode === 302 || response.statusCode === 301) {
+            // Follow redirect
+            https.get(response.headers.location, (redirectResponse) => {
+              if (redirectResponse.statusCode !== 200) {
+                reject(new Error(`Failed to download: HTTP ${redirectResponse.statusCode}`));
+                return;
+              }
 
-    if (patchResult.success) {
+              const file = fs.createWriteStream(serverPath);
+              const totalSize = parseInt(redirectResponse.headers['content-length'], 10);
+              let downloaded = 0;
+
+              redirectResponse.on('data', (chunk) => {
+                downloaded += chunk.length;
+                if (progressCallback && totalSize) {
+                  const percent = 30 + Math.floor((downloaded / totalSize) * 60);
+                  progressCallback(`Downloading... ${(downloaded / 1024 / 1024).toFixed(2)} MB`, percent);
+                }
+              });
+
+              redirectResponse.pipe(file);
+              file.on('finish', () => {
+                file.close();
+                resolve();
+              });
+            }).on('error', reject);
+          } else if (response.statusCode === 200) {
+            const file = fs.createWriteStream(serverPath);
+            const totalSize = parseInt(response.headers['content-length'], 10);
+            let downloaded = 0;
+
+            response.on('data', (chunk) => {
+              downloaded += chunk.length;
+              if (progressCallback && totalSize) {
+                const percent = 30 + Math.floor((downloaded / totalSize) * 60);
+                progressCallback(`Downloading... ${(downloaded / 1024 / 1024).toFixed(2)} MB`, percent);
+              }
+            });
+
+            response.pipe(file);
+            file.on('finish', () => {
+              file.close();
+              resolve();
+            });
+          } else {
+            reject(new Error(`Failed to download: HTTP ${response.statusCode}`));
+          }
+        }).on('error', (err) => {
+          fs.unlink(serverPath, () => {});
+          reject(err);
+        });
+      });
+
+      console.log('  Download successful');
+
       // Mark as patched
       fs.writeFileSync(patchFlagFile, JSON.stringify({
         domain: newDomain,
         patchedAt: new Date().toISOString(),
-        patcher: 'DualAuthPatcher'
+        patcher: 'PrePatchedDownload',
+        source: 'https://download.sanasol.ws/download/HytaleServer.jar'
       }));
 
       if (progressCallback) progressCallback('Server patching complete', 100);
       console.log('=== Server Patching Complete ===');
-      return { success: true, patchCount: patchResult.patchCount || 1 };
-    } else {
-      return { success: false, error: patchResult.error };
+      return { success: true, patchCount: 1 };
+
+    } catch (downloadError) {
+      console.error(`Failed to download patched JAR: ${downloadError.message}`);
+      
+      // Restore backup on failure
+      const backupPath = serverPath + '.original';
+      if (fs.existsSync(backupPath)) {
+        fs.copyFileSync(backupPath, serverPath);
+        console.log('Restored backup after download failure');
+      }
+
+      return { success: false, error: `Failed to download patched server: ${downloadError.message}` };
     }
   }
 
@@ -802,10 +820,24 @@ class ClientPatcher {
     ].join(process.platform === 'win32' ? ';' : ':');
 
     try {
-      execSync(`"${javac}" -cp "${classpath}" -d "${patcherDir}" "${patcherJava}"`, {
+      // Fix PATH for packaged Electron apps on Windows
+      const execOptions = {
         stdio: 'pipe',
-        cwd: patcherDir
-      });
+        cwd: patcherDir,
+        env: { ...process.env }
+      };
+      
+      // Add system32 to PATH for Windows to find cmd.exe
+      if (process.platform === 'win32') {
+        const systemRoot = process.env.SystemRoot || 'C:\\WINDOWS';
+        const systemPath = `${systemRoot}\\system32;${systemRoot};${systemRoot}\\System32\\Wbem`;
+        execOptions.env.PATH = execOptions.env.PATH 
+          ? `${systemPath};${execOptions.env.PATH}`
+          : systemPath;
+        execOptions.shell = true;
+      }
+      
+      execSync(`"${javac}" -cp "${classpath}" -d "${patcherDir}" "${patcherJava}"`, execOptions);
       console.log('  Compilation successful');
       return { success: true };
     } catch (e) {
