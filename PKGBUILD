@@ -2,7 +2,7 @@
 # Maintainer: Fazri Gading <fazrigading@gmail.com>
 pkgname=Hytale-F2P-git
 _pkgname=Hytale-F2P
-pkgver=2.0.11.r120.gb05aeef
+pkgver=2.0.12.r150.gb62ffc1
 pkgrel=1
 pkgdesc="Hytale-F2P - unofficial Hytale Launcher for free to play with multiplayer support"
 arch=('x86_64')
@@ -14,7 +14,10 @@ sha256sums=('SKIP' '46488fada4775d9976d7b7b62f8d1f1f8d9a9a9d8f8aa9af4f2e2153019f
 
 pkgver() {
   cd "$_pkgname"
-  printf "2.0.11.r%s.g%s" "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+  version=$(git describe --abbrev=0 --tags --match "v[0-9]*")
+  commits=$(git rev-list --count HEAD)
+  hash=$(git rev-parse --short HEAD)
+  printf "%s.r%s.g%s" "${version#v}" "$commits" "$hash"
 }
 
 build() {
