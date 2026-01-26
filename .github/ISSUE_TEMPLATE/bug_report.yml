@@ -55,6 +55,15 @@ body:
     validations:
       required: true
 
+  - type: textarea
+    id: hardwarespec
+    attributes:
+      label: Hardware Specification
+      description: Tell us your CPU, iGPU, dGPU, VRAM, and RAM information.
+      placeholder: "CPU: Intel i9-14900K 6.0 GHz | GPU: NVIDIA RTX 4090 | VRAM: 24 GB | RAM: 32 GB"
+    validations:
+      required: true
+
   - type: dropdown
     id: os
     attributes:
