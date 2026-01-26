@@ -1,12 +1,13 @@
 <div align="center">
 
 <header>
-  <h1>🎮 Hytale F2P Launcher | Cross-Platform Multiplayer 🖥️</h1>
+  <h1>🎮 Hytale F2P Launcher 🚀</h1>
+  <h2>💻 Cross-Platform Multiplayer 🖥️</h2>
   <h3>Available for Windows 🪟, macOS 🍎, and Linux 🐧</h3>
   <p><small>An unofficial cross-platform launcher for Hytale with automatic updates and multiplayer support (all OS supported)</small></p>
 </header>
 
-![Version](https://img.shields.io/badge/Version-2.1.0-green?style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-2.1.1-green?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-orange?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-Educational-blue?style=for-the-badge)
 
@@ -17,10 +18,10 @@
 
 ### ⚠️ **READ [QUICK START](https://github.com/amiayweb/Hytale-F2P/tree/main?tab=readme-ov-file#-quick-start) before Downloading & Installing the Launcher!** ⚠️
 
-🛑 **Found a problem? Join the Discord and Select #Open-A-Ticket!: https://discord.gg/gME8rUy3MB** 🛑
+#### 🛑 **Found a problem? Join the Discord and Select #Open-A-Ticket!: https://discord.gg/gME8rUy3MB** 🛑
 
 <p>
-  If you like the project, <b>feel free to support us via Buy Me a Coffee!</b>
+  👍 If you like the project, <b>feel free to support us via Buy Me a Coffee!</b> ☕<br>
   Any support is appreciated and helps keep the project going.
 </p>
 
@@ -160,9 +161,15 @@
 
 
 ### 🪟 Windows Prequisites
-* **Java JDK 25:** Download via [Adoptium](https://adoptium.net/temurin/releases/?version=25) or [Oracle](https://www.oracle.com/java/technologies/downloads/#jdk25-windows)
-* **Latest Visual Studio Redist:** Download via [Microsoft Visual C++ Redistributable](https://aka.ms/vc14/vc_redist.x64.exe) or [All-in-One by Techpowerup](https://www.techpowerup.com/download/visual-c-redistributable-runtime-package-all-in-one/)
-* **ENABLE MULTIPLAYER:** // TODO MULTIPLAYER GUIDE; FIREWALL GUIDE AND SUCH
+* **
+* **Java JDK 25:**
+  * [Oracle](https://www.oracle.com/java/technologies/downloads/#jdk25-windows), **no** support for Windows ARM64 in both version 25 and 21.
+  * [Adoptium](https://adoptium.net/temurin/releases/?version=25), has Windows ARM64 support in version 21 only.
+  * [Microsoft](https://learn.microsoft.com/en-us/java/openjdk/download), has Windows ARM64 support in version 25.
+  * Download from any vendor if your OS is not Windows with ARM64 architecture.
+* **Latest Visual Studio Redist:** 
+  * Download via [Microsoft Visual C++ Redistributable](https://aka.ms/vc14/vc_redist.x64.exe)
+  * Or [All-in-One by Techpowerup](https://www.techpowerup.com/download/visual-c-redistributable-runtime-package-all-in-one/)
 
 ### 🐧 Linux Prequisites
 

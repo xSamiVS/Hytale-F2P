@@ -35,6 +35,7 @@ jobs:
             dist/*.AppImage.blockmap
             dist/*.deb
             dist/*.rpm
+            dist/*.pacman
             dist/*.pkg.tar.zst
             dist/latest-linux.yml
 

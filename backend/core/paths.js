@@ -179,8 +179,28 @@ async function getModsPath(customInstallPath = null) {
     const profilesPath = path.join(userDataPath, 'Profiles');
 
     if (!fs.existsSync(modsPath)) {
-      // Ensure the Mods directory exists
-      fs.mkdirSync(modsPath, { recursive: true });
+      // Check for broken symlink to avoid EEXIST/EPERM on mkdir
+      let isBrokenLink = false;
+      let pathExists = false;
+      try {
+          const stats = fs.lstatSync(modsPath);
+          pathExists = true;
+          if (stats.isSymbolicLink()) {
+              // Check if target exists
+              try {
+                  fs.statSync(modsPath);
+              } catch {
+                  isBrokenLink = true;
+              }
+          }
+      } catch (e) { /* path doesn't exist at all */ }
+
+      if (isBrokenLink) {
+        fs.unlinkSync(modsPath); // Remove broken symlink
+      }
+      if (!pathExists || isBrokenLink) {
+        fs.mkdirSync(modsPath, { recursive: true });
+      }
     }
     if (!fs.existsSync(disabledModsPath)) {
       fs.mkdirSync(disabledModsPath, { recursive: true });

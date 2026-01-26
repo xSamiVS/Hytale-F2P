@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
 const axios = require('axios');
+const { getOS } = require('../utils/platformUtils');
 const { getModsPath, getProfilesDir } = require('../core/paths');
 const { saveModsToConfig, loadModsFromConfig } = require('../core/config');
 const profileManager = require('./profileManager');
@@ -307,11 +308,16 @@ async function syncModsForCurrentProfile() {
 
     // 2. Symlink / Migration Logic
     let needsLink = false;
+    let globalStats = null;
+    
+    try {
+      globalStats = fs.lstatSync(globalModsPath);
+    } catch (e) {
+      // Path doesn't exist
+    }
 
-    if (fs.existsSync(globalModsPath)) {
-      const stats = fs.lstatSync(globalModsPath);
-      
-      if (stats.isSymbolicLink()) {
+    if (globalStats) {
+      if (globalStats.isSymbolicLink()) {
         const linkTarget = fs.readlinkSync(globalModsPath);
         // Normalize paths for comparison
         if (path.resolve(linkTarget) !== path.resolve(profileModsPath)) {
@@ -319,7 +325,7 @@ async function syncModsForCurrentProfile() {
           fs.unlinkSync(globalModsPath);
           needsLink = true;
         }
-      } else if (stats.isDirectory()) {
+      } else if (globalStats.isDirectory()) {
         // MIGRATION: It's a real directory. Move contents to profile.
         console.log('[ModManager] Migrating global mods folder to profile folder...');
         const files = fs.readdirSync(globalModsPath);
@@ -349,7 +355,20 @@ async function syncModsForCurrentProfile() {
 
         // Remove the directory so we can link it
         try {
-            fs.rmSync(globalModsPath, { recursive: true, force: true });
+            let retries = 3;
+            while (retries > 0) {
+                try {
+                    fs.rmSync(globalModsPath, { recursive: true, force: true });
+                    break;
+                } catch (err) {
+                    if ((err.code === 'EPERM' || err.code === 'EBUSY') && retries > 0) {
+                        retries--;
+                        await new Promise(resolve => setTimeout(resolve, 500));
+                    } else {
+                        throw err;
+                    }
+                }
+            }
             needsLink = true;
         } catch (e) {
             console.error('Failed to remove global mods dir:', e);
@@ -364,8 +383,8 @@ async function syncModsForCurrentProfile() {
     if (needsLink) {
       console.log(`[ModManager] Creating symlink: ${globalModsPath} -> ${profileModsPath}`);
       try {
-         // 'junction' is key for Windows without admin
-         fs.symlinkSync(profileModsPath, globalModsPath, 'junction'); 
+         const symlinkType = getOS() === 'windows' ? 'junction' : 'dir';
+         fs.symlinkSync(profileModsPath, globalModsPath, symlinkType); 
       } catch (err) {
         // If we can't create the symlink, try creating the directory first
         console.error('[ModManager] Failed to create symlink. Falling back to direct folder mode.');

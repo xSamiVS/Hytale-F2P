@@ -365,7 +365,21 @@ async function updateGameFiles(newVersion, progressCallback, gameDir = GAME_DIR,
 
     if (fs.existsSync(gameDir)) {
       console.log('Removing old game files...');
-      fs.rmSync(gameDir, { recursive: true, force: true });
+      let retries = 3;
+      while (retries > 0) {
+        try {
+          fs.rmSync(gameDir, { recursive: true, force: true });
+          break;
+        } catch (err) {
+          if ((err.code === 'EPERM' || err.code === 'EBUSY') && retries > 0) {
+            retries--;
+            console.log(`[UpdateGameFiles] Removal failed with ${err.code}, retrying in 1s... (${retries} retries left)`);
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          } else {
+            throw err;
+          }
+        }
+      }
     }
 
     fs.renameSync(tempUpdateDir, gameDir);
