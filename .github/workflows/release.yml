@@ -9,6 +9,51 @@ on:
   workflow_dispatch:
 
 jobs:
+  build-arch:
+    runs-on: ubuntu-latest
+
+    container:
+      image: archlinux:latest
+
+    steps:
+      - name: Install base packages
+        run: |
+          pacman -Syu --noconfirm
+          pacman -S --noconfirm \
+            base-devel \
+            git \
+            nodejs \
+            npm \
+            rpm-tools \
+            libxcrypt-compat
+
+      - name: Create build user
+        run: |
+          useradd -m builder
+          echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fix permissions
+        run: chown -R builder:builder .
+
+      - name: Build Arch Package
+        run: |
+          sudo -u builder bash << 'EOF'
+          set -e
+          makepkg -s --noconfirm
+          EOF
+      - uses: actions/upload-artifact@v4
+        with:
+          name: arch-package
+          path: |
+            *.pkg.tar.zst
+            *.src.tar.zst
+            .SRCINFO
+
   build-linux:
     runs-on: ubuntu-latest
     steps:
@@ -36,7 +81,6 @@ jobs:
             dist/*.deb
             dist/*.rpm
             dist/*.pacman
-            dist/*.pkg.tar.zst
             dist/latest-linux.yml
 
   build-windows:
@@ -115,6 +159,8 @@ jobs:
           # If it's the 'release' branch, use 'v2.0.2-beta.r42'
           # name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}-beta.r{1}', steps.pkg_version.outputs.VERSION, github.run_number) }}
           files: |
+            artifacts/arch-package/*.pkg.tar.zst
+            artifacts/arch-package/*.src.tar.zst
             artifacts/linux-builds/**/*
             artifacts/windows-builds/**/*
             artifacts/macos-builds/**/*
