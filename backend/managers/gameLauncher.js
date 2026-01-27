@@ -285,6 +285,55 @@ exec "$REAL_JAVA" "\${ARGS[@]}"
    const gpuEnv = setupGpuEnvironment(gpuPreference);
    Object.assign(env, gpuEnv);
 
+  // Linux: Replace bundled libzstd.so with system version to fix glibc 2.41+ crash
+  // The bundled libzstd causes "free(): invalid pointer" on Steam Deck / Ubuntu LTS
+  if (process.platform === 'linux' && process.env.HYTALE_NO_LIBZSTD_FIX !== '1') {
+    const clientDir = path.dirname(clientPath);
+    const bundledLibzstd = path.join(clientDir, 'libzstd.so');
+    const backupLibzstd = path.join(clientDir, 'libzstd.so.bundled');
+
+    // Common system libzstd paths
+    const systemLibzstdPaths = [
+      '/usr/lib/libzstd.so.1',                    // Arch Linux, Steam Deck
+      '/usr/lib/x86_64-linux-gnu/libzstd.so.1',   // Debian/Ubuntu
+      '/usr/lib64/libzstd.so.1'                   // Fedora/RHEL
+    ];
+
+    let systemLibzstd = null;
+    for (const p of systemLibzstdPaths) {
+      if (fs.existsSync(p)) {
+        systemLibzstd = p;
+        break;
+      }
+    }
+
+    if (systemLibzstd && fs.existsSync(bundledLibzstd)) {
+      try {
+        const stats = fs.lstatSync(bundledLibzstd);
+
+        // Only replace if it's not already a symlink to system version
+        if (!stats.isSymbolicLink()) {
+          // Backup bundled version
+          if (!fs.existsSync(backupLibzstd)) {
+            fs.renameSync(bundledLibzstd, backupLibzstd);
+            console.log(`Linux: Backed up bundled libzstd.so`);
+          } else {
+            fs.unlinkSync(bundledLibzstd);
+          }
+
+          // Create symlink to system version
+          fs.symlinkSync(systemLibzstd, bundledLibzstd);
+          console.log(`Linux: Linked libzstd.so to system version (${systemLibzstd}) for glibc 2.41+ compatibility`);
+        } else {
+          const linkTarget = fs.readlinkSync(bundledLibzstd);
+          console.log(`Linux: libzstd.so already linked to ${linkTarget}`);
+        }
+      } catch (libzstdError) {
+        console.warn(`Linux: Could not replace libzstd.so: ${libzstdError.message}`);
+      }
+    }
+  }
+
   try {
     let spawnOptions = {
       stdio: ['ignore', 'pipe', 'pipe'],
