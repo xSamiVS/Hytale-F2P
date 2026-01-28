@@ -24,7 +24,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   saveCloseLauncher: (enabled) => ipcRenderer.invoke('save-close-launcher', enabled),
   loadCloseLauncher: () => ipcRenderer.invoke('load-close-launcher'),
 
-  // Harwadre Acceleration
+  // Hardware Acceleration
   saveLauncherHardwareAcceleration: (enabled) => ipcRenderer.invoke('save-launcher-hw-accel', enabled),
   loadLauncherHardwareAcceleration: () => ipcRenderer.invoke('load-launcher-hw-accel'),
 
@@ -50,14 +50,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   selectModFiles: () => ipcRenderer.invoke('select-mod-files'),
   copyModFile: (sourcePath, modsPath) => ipcRenderer.invoke('copy-mod-file', sourcePath, modsPath),
   onProgressUpdate: (callback) => {
-    ipcRenderer.on('progress-update', (event, data) => {
-      // Ensure data includes retry state if available
-      if (data && typeof data === 'object') {
-        callback(data);
-      } else {
-        callback(data);
-      }
-    });
+    ipcRenderer.on('progress-update', (event, data) => callback(data));
   },
   onProgressComplete: (callback) => {
     ipcRenderer.on('progress-complete', () => callback());
@@ -69,7 +62,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
     ipcRenderer.on('installation-end', () => callback());
   },
   getUserId: () => ipcRenderer.invoke('get-user-id'),
-  checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
   openDownloadPage: () => ipcRenderer.invoke('open-download-page'),
   getUpdateInfo: () => ipcRenderer.invoke('get-update-info'),
   onUpdatePopup: (callback) => {
@@ -126,6 +118,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   checkForUpdates: () => ipcRenderer.invoke('check-for-updates'),
   downloadUpdate: () => ipcRenderer.invoke('download-update'),
   installUpdate: () => ipcRenderer.invoke('install-update'),
+  quitAndInstallUpdate: () => ipcRenderer.invoke('install-update'),  // Alias for update.js compatibility
   getLauncherVersion: () => ipcRenderer.invoke('get-launcher-version'),
   onUpdateAvailable: (callback) => {
     ipcRenderer.on('update-available', (event, data) => callback(data));

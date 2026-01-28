@@ -72,8 +72,11 @@ export async function installGame() {
           setTimeout(() => {
             window.LauncherUI.hideProgress();
             window.LauncherUI.showLauncherOrInstall(true);
+            // Sync player name to both launcher and settings inputs
             const playerNameInput = document.getElementById('playerName');
             if (playerNameInput) playerNameInput.value = playerName;
+            const settingsPlayerName = document.getElementById('settingsPlayerName');
+            if (settingsPlayerName) settingsPlayerName.value = playerName;
             resetInstallButton();
           }, 2000);
         }
@@ -125,8 +128,11 @@ function simulateInstallation(playerName) {
           setTimeout(() => {
             window.LauncherUI.hideProgress();
             window.LauncherUI.showLauncherOrInstall(true);
+            // Sync player name to both launcher and settings inputs
             const playerNameInput = document.getElementById('playerName');
             if (playerNameInput) playerNameInput.value = playerName;
+            const settingsPlayerName = document.getElementById('settingsPlayerName');
+            if (settingsPlayerName) settingsPlayerName.value = playerName;
             resetInstallButton();
           }, 2000);
         }
@@ -240,12 +246,6 @@ async function loadPlayerSettings() {
 }
 
 window.installGame = installGame;
-window.browseInstallPath = browseInstallPath;
-
-document.addEventListener('DOMContentLoaded', async () => {
-  setupInstallation();
-  await checkGameStatusAndShowInterface();
-});
 window.browseInstallPath = browseInstallPath;
 
 document.addEventListener('DOMContentLoaded', async () => {

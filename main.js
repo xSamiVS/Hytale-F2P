@@ -176,7 +176,8 @@ function createWindow() {
   initDiscordRPC();
 
   // Configure and initialize electron-updater
-  autoUpdater.autoDownload = false;
+  // Enable auto-download so updates start immediately when available
+  autoUpdater.autoDownload = true;
   autoUpdater.autoInstallOnAppQuit = true;
 
   autoUpdater.on('checking-for-update', () => {
@@ -201,6 +202,20 @@ function createWindow() {
 
   autoUpdater.on('error', (err) => {
     console.error('Error in auto-updater:', err);
+
+    // Handle macOS code signing errors - requires manual download
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      const isMacSigningError = process.platform === 'darwin' &&
+        (err.code === 'ERR_UPDATER_INVALID_SIGNATURE' ||
+         err.message.includes('signature') ||
+         err.message.includes('code sign'));
+
+      mainWindow.webContents.send('update-error', {
+        message: err.message,
+        isMacSigningError: isMacSigningError,
+        requiresManualDownload: isMacSigningError || process.platform === 'darwin'
+      });
+    }
   });
 
   autoUpdater.on('download-progress', (progressObj) => {
@@ -218,7 +233,10 @@ function createWindow() {
     console.log('Update downloaded:', info.version);
     if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.webContents.send('update-downloaded', {
-        version: info.version
+        version: info.version,
+        platform: process.platform,
+        // macOS auto-install often fails on unsigned apps
+        autoInstallSupported: process.platform !== 'darwin'
       });
     }
   });
@@ -859,6 +877,17 @@ ipcMain.handle('open-external', async (event, url) => {
   }
 });
 
+ipcMain.handle('open-download-page', async () => {
+  try {
+    // Open GitHub releases page for manual download
+    await shell.openExternal('https://github.com/amiayweb/Hytale-F2P/releases/latest');
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to open download page:', error);
+    return { success: false, error: error.message };
+  }
+});
+
 ipcMain.handle('open-game-location', async () => {
   try {
     const { getResolvedAppDir, loadVersionBranch } = require('./backend/launcher');
@@ -1086,8 +1115,37 @@ ipcMain.handle('download-update', async () => {
   }
 });
 
-ipcMain.handle('install-update', () => {
-  autoUpdater.quitAndInstall(false, true);
+ipcMain.handle('install-update', async () => {
+  console.log('[AutoUpdater] Installing update...');
+
+  // On macOS, quitAndInstall often fails silently
+  // Use a more aggressive approach
+  if (process.platform === 'darwin') {
+    console.log('[AutoUpdater] macOS detected, using force quit approach');
+    // Give user feedback that something is happening
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('update-installing');
+    }
+
+    // Small delay to show the "Installing..." state
+    await new Promise(resolve => setTimeout(resolve, 500));
+
+    try {
+      autoUpdater.quitAndInstall(false, true);
+    } catch (err) {
+      console.error('[AutoUpdater] quitAndInstall failed:', err);
+      // Force quit the app - the update should install on next launch
+      app.exit(0);
+    }
+
+    // If quitAndInstall didn't work, force exit after a delay
+    setTimeout(() => {
+      console.log('[AutoUpdater] Force exiting app...');
+      app.exit(0);
+    }, 2000);
+  } else {
+    autoUpdater.quitAndInstall(false, true);
+  }
 });
 
 ipcMain.handle('get-launcher-version', () => {
