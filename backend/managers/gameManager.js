@@ -11,7 +11,7 @@ const { saveUsername, saveInstallPath, loadJavaPath, CONFIG_FILE, loadConfig, lo
 const { resolveJavaPath, detectSystemJava, downloadJRE, getJavaExec, getBundledJavaPath } = require('./javaManager');
 const { getUserDataPath, migrateUserDataToCentralized } = require('../utils/userDataMigration');
 
-async function downloadPWR(branch = 'release', fileName = '4.pwr', progressCallback, cacheDir = CACHE_DIR, manualRetry = false) {
+async function downloadPWR(branch = 'release', fileName = '7.pwr', progressCallback, cacheDir = CACHE_DIR, manualRetry = false) {
   const osName = getOS();
   const arch = getArch();
 
