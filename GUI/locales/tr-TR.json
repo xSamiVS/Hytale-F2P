@@ -131,6 +131,8 @@
     "closeLauncher": "Başlatıcı Davranışı",
     "closeOnStart": "Oyun başlatıldığında Başlatıcıyı Kapat",
     "closeOnStartDescription": "Hytale başlatıldıktan sonra başlatıcıyı otomatik olarak kapatın",
+    "hwAccel": "Donanım Hızlandırma",
+    "hwAccelDescription": "Başlatıcı için donanım hızlandırmasını etkinleştir",
     "gameBranch": "Oyun Dalı",
     "branchRelease": "Yayın",
     "branchPreRelease": "Ön-Yayın",
@@ -207,7 +209,9 @@
     "modsDownloadFailed": "Mod indirilemedi: {error}",
     "modsToggleFailed": "Mod değiştirilemedi: {error}",
     "modsDeleteFailed": "Mod silinemedi: {error}",
-    "modsModNotFound": "Mod bilgileri bulunamadı"
+    "modsModNotFound": "Mod bilgileri bulunamadı",
+    "hwAccelSaved": "Donanım hızlandırma ayarı kaydedildi",
+    "hwAccelSaveFailed": "Donanım hızlandırma ayarı kaydedilemedi"
   },
   "confirm": {
     "defaultTitle": "Eylemi onayla",
