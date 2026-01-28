@@ -119,7 +119,7 @@
     "repairGame": "Починить игру",
     "reinstallGame": "Переустановить файлы игры (сохраняет данные)",
     "gpuPreference": "Предпочтение GPU",
-    "gpuHint": "Выберите ваш предпочитаемый GPU (Linux: affects DRI_PRIME)",
+    "gpuHint": "Выберите ваш предпочитаемый GPU (Linux: влияет на DRI_PRIME)",
     "gpuAuto": "Автоматический выбор",
     "gpuIntegrated": "Интегрированная видеокарта",
     "gpuDedicated": "Дискретная видеокарта",
