@@ -415,6 +415,7 @@ See [BUILD.md](docs/BUILD.md) for comprehensive build instructions.
 - [**@Citeli-py**](https://github.com/Citeli-py) - *Issues fixer*
 - [**@Rahul-Sahani04**](https://github.com/Rahul-Sahani04) - *Issues fixer*
 - [**@xSamiVS**](https://github.com/xSamiVS) - *Language Translator*
+- [**@BlackSystemCoder**](https://github.com/BlackSystemCoder) - *Language Translator*
 
 ---
 
