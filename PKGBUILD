@@ -10,6 +10,8 @@ url="https://github.com/amiayweb/Hytale-F2P"
 license=('custom')
 depends=('gtk3' 'nss' 'libxcrypt-compat')
 makedepends=('npm')
+provides=('Hytale-F2P-git' 'hytale-f2p-git')
+conflicts=('Hytale-F2P-git' 'hytale-f2p-git')
 source=("$url/archive/v$pkgver.tar.gz" "Hytale-F2P.desktop")
 sha256sums=('SKIP' '46488fada4775d9976d7b7b62f8d1f1f8d9a9a9d8f8aa9af4f2e2153019f6a30')
 

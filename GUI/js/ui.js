@@ -972,7 +972,7 @@ function setupRetryButton() {
         if (!currentDownloadState.retryData || currentDownloadState.errorType === 'jre') {
           currentDownloadState.retryData = {
             branch: 'release',
-            fileName: '4.pwr'
+            fileName: '7.pwr'
           };
           console.log('[UI] Created default PWR retry data:', currentDownloadState.retryData);
         }
@@ -1040,7 +1040,7 @@ function setupRetryButton() {
           } else {
             currentDownloadState.retryData = {
               branch: 'release',
-              fileName: '4.pwr'
+              fileName: '7.pwr'
             };
           }
           console.log('[UI] Created default retry data:', currentDownloadState.retryData);

@@ -45,8 +45,16 @@ export function setupInstallation() {
 export async function installGame() {
   if (isDownloading || (installBtn && installBtn.disabled)) return;
   
-  const playerName = (installPlayerName ? installPlayerName.value.trim() : '') || 'Player';
+  let playerName = (installPlayerName ? installPlayerName.value.trim() : '') || 'Player';
   const installPath = installPathInput ? installPathInput.value.trim() : '';
+  
+  // Limit player name to 16 characters
+  if (playerName.length > 16) {
+    playerName = playerName.substring(0, 16);
+    if (installPlayerName) {
+      installPlayerName.value = playerName;
+    }
+  }
   
   const selectedBranchRadio = document.querySelector('input[name="installBranch"]:checked');
   const selectedBranch = selectedBranchRadio ? selectedBranchRadio.value : 'release';
@@ -194,7 +202,16 @@ export async function browseInstallPath() {
 async function savePlayerName() {
   try {
     if (window.electronAPI && window.electronAPI.saveSettings) {
-      const playerName = (installPlayerName ? installPlayerName.value.trim() : '') || 'Player';
+      let playerName = (installPlayerName ? installPlayerName.value.trim() : '') || 'Player';
+      
+      // Limit player name to 16 characters
+      if (playerName.length > 16) {
+        playerName = playerName.substring(0, 16);
+        if (installPlayerName) {
+          installPlayerName.value = playerName;
+        }
+      }
+      
       await window.electronAPI.saveSettings({ playerName });
     }
   } catch (error) {

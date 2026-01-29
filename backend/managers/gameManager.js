@@ -11,7 +11,7 @@ const { saveUsername, saveInstallPath, loadJavaPath, CONFIG_FILE, loadConfig, lo
 const { resolveJavaPath, detectSystemJava, downloadJRE, getJavaExec, getBundledJavaPath } = require('./javaManager');
 const { getUserDataPath, migrateUserDataToCentralized } = require('../utils/userDataMigration');
 
-async function downloadPWR(branch = 'release', fileName = '4.pwr', progressCallback, cacheDir = CACHE_DIR, manualRetry = false) {
+async function downloadPWR(branch = 'release', fileName = '7.pwr', progressCallback, cacheDir = CACHE_DIR, manualRetry = false) {
   const osName = getOS();
   const arch = getArch();
 
@@ -300,6 +300,16 @@ async function applyPWR(pwrFile, progressCallback, gameDir = GAME_DIR, toolsDir 
     fs.rmSync(stagingDir, { recursive: true, force: true });
   }
 
+  // Delete PWR file from cache after successful installation
+  try {
+    if (fs.existsSync(pwrFile)) {
+      fs.unlinkSync(pwrFile);
+      console.log('[Butler] PWR file deleted from cache after successful installation:', pwrFile);
+    }
+  } catch (delErr) {
+    console.warn('[Butler] Failed to delete PWR file from cache:', delErr.message);
+  }
+
   if (progressCallback) {
     progressCallback('Installation complete', null, null, null, null);
   }
@@ -352,7 +362,15 @@ async function updateGameFiles(newVersion, progressCallback, gameDir = GAME_DIR,
     }
 
     await applyPWR(pwrFile, progressCallback, tempUpdateDir, toolsDir, branch, cacheDir);
-
+    // Delete PWR file from cache after successful update
+    try {
+      if (fs.existsSync(pwrFile)) {
+        fs.unlinkSync(pwrFile);
+        console.log('[UpdateGameFiles] PWR file deleted from cache after successful update:', pwrFile);
+      }
+    } catch (delErr) {
+      console.warn('[UpdateGameFiles] Failed to delete PWR file from cache:', delErr.message);
+    }
     if (progressCallback) {
       progressCallback('Replacing game files...', 80, null, null, null);
     }

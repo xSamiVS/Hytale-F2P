@@ -547,7 +547,7 @@ ipcMain.handle('install-game', async (event, playerName, javaPath, installPath, 
       console.log('[Main] Processing Butler error with retry context');
       errorData.retryData = {
         branch: error.branch || 'release',
-        fileName: error.fileName || '4.pwr',
+        fileName: error.fileName || '7.pwr',
         cacheDir: error.cacheDir
       };
       errorData.canRetry = error.canRetry !== false;
@@ -567,7 +567,7 @@ ipcMain.handle('install-game', async (event, playerName, javaPath, installPath, 
       console.log('[Main] Processing generic error, creating default retry data');
       errorData.retryData = {
         branch: 'release',
-        fileName: '4.pwr'
+        fileName: '7.pwr'
       };
       // For generic errors, assume it's retryable unless specified
       errorData.canRetry = error.canRetry !== false;
@@ -802,7 +802,7 @@ ipcMain.handle('retry-download', async (event, retryData) => {
       console.log('[IPC] Invalid retry data, using PWR defaults');
       retryData = {
         branch: 'release',
-        fileName: '4.pwr'
+        fileName: '7.pwr'
       };
     }
 
@@ -836,7 +836,7 @@ ipcMain.handle('retry-download', async (event, retryData) => {
         } :
         {
           branch: retryData?.branch || 'release',
-          fileName: retryData?.fileName || '4.pwr',
+          fileName: retryData?.fileName || '7.pwr',
           cacheDir: retryData?.cacheDir
         };
 
@@ -1379,3 +1379,4 @@ ipcMain.handle('profile-update', async (event, id, updates) => {
     return { error: error.message };
   }
 });
+
